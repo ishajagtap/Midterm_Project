@@ -22,8 +22,8 @@ def test_run_module_main(monkeypatch, tmp_path):
         "exit"            # exit -> should raise SystemExit
     ])
 
-    monkeypatch.setenv("HISTORY_CSV_PATH", str(tmp_path / "history.csv"))
-    monkeypatch.setenv("AUTO_SAVE", "True")
+    monkeypatch.setenv("CALCULATOR_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("CALCULATOR_AUTO_SAVE", "True")
 
     monkeypatch.setattr(builtins, "input", lambda prompt="": next(seq))
 

@@ -31,7 +31,7 @@ Commands:
   exit               -> quit
 """
 
-def process_command(calc: CalculatorFacade, line: str, cfg):
+def process_command(calc: CalculatorFacade, history, cfg, line: str):
     """
     Process one REPL command line using configuration from cfg.
     cfg must have:
@@ -39,7 +39,7 @@ def process_command(calc: CalculatorFacade, line: str, cfg):
       - cfg.history_file (Path)
     """
     try:
-        cmd, a, b = parse_command(calc, line)
+        cmd, a, b = parse_command(line)
 
         if cmd == "help":
             return {"printed": WELCOME, "exit": False}
@@ -98,6 +98,8 @@ def process_command(calc: CalculatorFacade, line: str, cfg):
 def repl():
     cfg = load_config()
     calc = CalculatorFacade(config=cfg)
+    if cfg.auto_save:
+        calc.save_history(str(cfg.history_file))
 
     logger = build_logger(str(cfg.log_file))
     calc.register_observer(LoggingObserver(logger))
@@ -109,7 +111,7 @@ def repl():
             line = input("calc> ").strip()
             if not line:
                 continue
-            res = process_command(calc, line, cfg)
+            res = process_command(calc, calc, cfg, line)
             print(res["printed"])
             if res["exit"]:
                 # Flush and close logger handlers on exit

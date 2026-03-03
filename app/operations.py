@@ -74,23 +74,36 @@ class OperationFactory:
     _operations = {
         "add": Add,
         "+": Add,
+
         "sub": Sub,
         "-": Sub,
+        "subtract": Sub,          # ✅ added
+
         "mul": Mul,
         "*": Mul,
+        "multiply": Mul,          # ✅ added
+
         "div": Div,
         "/": Div,
+        "divide": Div,            # ✅ added
+
         "pow": Pow,
         "^": Pow,
+        "power": Pow,             # ✅ added
+
         "root": Root,
+
         "modulus": Modulus,
         "mod": Modulus,
         "%": Modulus,
+
         "int_divide": IntDivide,
         "intdiv": IntDivide,
         "//": IntDivide,
+
         "percent": Percent,
         "pct": Percent,
+
         "abs_diff": AbsDiff,
         "absdiff": AbsDiff,
     }

@@ -24,8 +24,8 @@ def test_repl_invalid_and_unknown_commands(monkeypatch, tmp_path):
     # 5) exit (to stop the loop)
     inputs = ["", "clear", "unknown 1 2", "help", "exit"]
 
-    monkeypatch.setenv("HISTORY_CSV_PATH", str(tmp_path / "history.csv"))
-    monkeypatch.setenv("AUTO_SAVE", "False")
+    monkeypatch.setenv("CALCULATOR_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("CALCULATOR_AUTO_SAVE", "False")
 
     monkeypatch.setattr(builtins, "input", _make_input_sequence(inputs))
 

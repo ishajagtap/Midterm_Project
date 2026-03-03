@@ -30,8 +30,8 @@ def test_repl_handles_commands_and_exits(monkeypatch, tmp_path):
     ]
 
     # Ensure history path points to tmp_path so REPL's save does not pollute home dir
-    monkeypatch.setenv("HISTORY_CSV_PATH", str(tmp_path / "history.csv"))
-    monkeypatch.setenv("AUTO_SAVE", "True")
+    monkeypatch.setenv("CALCULATOR_HISTORY_DIR", str(tmp_path))
+    monkeypatch.setenv("CALCULATOR_AUTO_SAVE", "True")
 
     fake_input = _make_input_sequence(lines)
     monkeypatch.setattr(builtins, "input", fake_input)

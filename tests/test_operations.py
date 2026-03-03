@@ -1,7 +1,7 @@
 # tests/test_operations.py
 import pytest
 from app.operations import Add, Sub, Mul, Div, Pow, Root
-from app.exceptions import DivisionByZeroError
+from app.exceptions import DivisionByZeroError, OperationError
 
 def test_add():
     assert Add().execute(2, 3) == 5
@@ -29,5 +29,5 @@ def test_root_negative_odd():
     assert pytest.approx(Root().execute(-27, 3)) == -3
 
 def test_root_negative_even():
-    with pytest.raises(ValueError):
+    with pytest.raises(OperationError):
         Root().execute(-16, 2)
