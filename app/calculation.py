@@ -4,6 +4,7 @@ from .operations import AbsDiff, Add, IntDivide, Modulus, Percent, Sub, Mul, Div
 from .history import History
 from .calculator_memento import Caretaker
 from .exceptions import InvalidInputError
+from .observers import Observer 
 
 OP_MAP = {
     "add": Add,
@@ -38,6 +39,7 @@ class CalculatorFacade:
         self._caretaker = Caretaker()
         self._last_result = None
         # initial snapshot
+        self._observers = []
         self._caretaker.save(self._capture_state())
 
     def _capture_state(self):
@@ -67,6 +69,7 @@ class CalculatorFacade:
         self._last_result = result
         self.history.append(op_name, a, b, result)
         self._caretaker.save(self._capture_state())
+        self._notify_observers(operation=op_name, a=a, b=b, result=result)
         return result
 
     def undo(self):
@@ -103,3 +106,12 @@ class CalculatorFacade:
         self._last_result = None
         #  reset caretaker stacks to match cleared state
         self._caretaker.reset(self._capture_state())
+
+    
+    def register_observer(self, observer: Observer) -> None:
+        self._observers.append(observer)
+
+    
+    def _notify_observers(self, *, operation: str, a: float, b: float, result: float) -> None:
+        for obs in self._observers:
+            obs.update(operation=operation, a=a, b=b, result=result, calc=self)

@@ -3,6 +3,9 @@ from .input_validators import parse_command
 from .calculation import CalculatorFacade
 from .calculator_config import get_history_path, get_auto_save
 from .exceptions import InvalidInputError, DivisionByZeroError, CalculationError
+from .calculator_config import get_history_path, get_auto_save, get_log_path  # add get_log_path
+from .logger import build_logger
+from .observers import LoggingObserver, AutoSaveObserver
 
 WELCOME = """Enhanced Calculator REPL
 
@@ -92,6 +95,11 @@ def repl():
     calc = CalculatorFacade()
     history_path = get_history_path()
     auto_save = get_auto_save()
+    logger = build_logger(get_log_path())
+
+    calc.register_observer(LoggingObserver(logger))
+    calc.register_observer(
+        AutoSaveObserver(history_path=history_path, enabled=auto_save))
     print(WELCOME)
     while True:
         try:

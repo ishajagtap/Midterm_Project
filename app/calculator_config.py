@@ -27,3 +27,10 @@ def get_auto_save() -> bool:
         if val_low in {"false", "0", "no"}:
             return False
     raise ConfigError("AUTO_SAVE must be a boolean-like value.")
+
+def get_log_path() -> str:
+    # You can later rename to CALCULATOR_LOG_DIR/CALCULATOR_LOG_FILE to match spec
+    path = get_env("CALCULATOR_LOG_FILE", "data/calculator.log")
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    return str(path)
