@@ -83,8 +83,10 @@ def load_config() -> CalculatorConfig:
 
     try:
         history_dir.mkdir(parents=True, exist_ok=True)
-    except OSError as e:
-        raise ConfigError(f"Cannot create history directory: {history_dir}") from e
+    except OSError:
+    # Don't fail at config-load time.
+    # Tests expect persistence errors to be handled when saving/loading history.
+        pass
 
     try:
         log_file.parent.mkdir(parents=True, exist_ok=True)
