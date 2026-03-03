@@ -5,20 +5,28 @@ from .calculator_config import get_history_path, get_auto_save
 from .exceptions import InvalidInputError, DivisionByZeroError, CalculationError
 
 WELCOME = """Enhanced Calculator REPL
+
 Commands:
-  add|+ a b      -> addition
-  sub|- a b      -> subtraction
-  mul|* a b      -> multiplication
-  div|/ a b      -> division
-  pow|^ a b      -> power (a^b)
-  root a b       -> b-th root of a
-  history        -> print history
-  undo / redo    -> undo or redo last operation
-  save           -> save history to default path
-  load           -> load history from default path
-  clear          -> clear history
-  help           -> show this help
-  exit           -> quit
+  add|+ a b          -> addition
+  sub|- a b          -> subtraction
+  mul|* a b          -> multiplication
+  div|/ a b          -> division
+  pow|^ a b          -> power (a^b)
+  root a b           -> b-th root of a
+
+  modulus|mod|% a b  -> remainder of a divided by b
+  int_divide|// a b  -> integer division (discard fractional part)
+  percent a b        -> (a / b) * 100
+  abs_diff a b       -> absolute difference |a - b|
+
+  history            -> print calculation history
+  undo               -> undo last operation
+  redo               -> redo last undone operation
+  save               -> save history to default path
+  load               -> load history from default path
+  clear              -> clear history
+  help               -> show this help
+  exit               -> quit
 """
 
 def process_command(calc: CalculatorFacade, line: str, history_path: str, auto_save: bool):

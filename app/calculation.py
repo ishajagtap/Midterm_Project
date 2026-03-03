@@ -1,6 +1,6 @@
 ﻿# app/calculation.py
 from typing import Dict
-from .operations import Add, Sub, Mul, Div, Pow, Root, Operation
+from .operations import AbsDiff, Add, IntDivide, Modulus, Percent, Sub, Mul, Div, Pow, Root, Operation
 from .history import History
 from .calculator_memento import Caretaker
 from .exceptions import InvalidInputError
@@ -17,6 +17,19 @@ OP_MAP = {
     "pow": Pow,
     "^": Pow,
     "root": Root,
+    "modulus": Modulus,
+    "mod": Modulus,
+    "%": Modulus,
+
+    "int_divide": IntDivide,
+    "intdiv": IntDivide,
+    "//": IntDivide,
+
+    "percent": Percent,
+    "pct": Percent,
+
+    "abs_diff": AbsDiff,
+    "absdiff": AbsDiff,
 }
 
 class CalculatorFacade:

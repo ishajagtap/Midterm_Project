@@ -1,5 +1,6 @@
 ﻿# app/operations.py
 from abc import ABC, abstractmethod
+import math
 from .exceptions import DivisionByZeroError
 
 class Operation(ABC):
@@ -43,3 +44,26 @@ class Root(Operation):
                 return - (abs(a) ** (1.0 / b))
             raise ValueError("Even root of negative number is invalid.")
         return a ** (1.0 / b)
+
+class Modulus(Operation):
+    def execute(self, a, b):
+        if b == 0:
+            raise DivisionByZeroError("Modulus by zero is not allowed.")
+        return a % b
+
+class IntDivide(Operation):
+    def execute(self, a, b):
+        if b == 0:
+            raise DivisionByZeroError("Integer division by zero is not allowed.")
+        # Discard fractional part (truncate toward 0)
+        return math.trunc(a / b)
+
+class Percent(Operation):
+    def execute(self, a, b):
+        if b == 0:
+            raise DivisionByZeroError("Percentage with divisor zero is not allowed.")
+        return (a / b) * 100.0
+
+class AbsDiff(Operation):
+    def execute(self, a, b):
+        return abs(a - b)
