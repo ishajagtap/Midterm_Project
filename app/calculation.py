@@ -1,6 +1,8 @@
 ﻿# app/calculation.py
 from os import path
 from typing import Dict
+
+from .colors import init_colors, paint
 from .operations import AbsDiff, Add, IntDivide, Modulus, Percent, Sub, Mul, Div, Pow, Root, Operation
 from .history import History
 from .calculator_memento import Caretaker
@@ -41,12 +43,12 @@ class CalculatorFacade:
         try:
             operation: Operation = OperationFactory.create(op_name)
         except Exception:
-            raise InvalidInputError(f"Unknown operation: {op_name}")
+            raise InvalidInputError(paint(f"Unknown operation: {op_name}", kind="error"))
 
         try:
             result = operation.execute(a, b)
         except OperationError as e:
-            raise InvalidInputError(str(e))
+            raise InvalidInputError(paint(f"Operation error: {e}", kind="error"))
 
         if self.config is not None and getattr(self.config, "precision", None) is not None:
             result = round(result, int(self.config.precision))
@@ -81,9 +83,9 @@ class CalculatorFacade:
         except PersistenceError:
             raise
         except PermissionError as e:
-            raise PersistenceError(f"Cannot write history file (permission denied): {path}") from e
+            raise PersistenceError(paint(f"Cannot write history file (permission denied): {path}", kind="error")) from e
         except OSError as e:
-            raise PersistenceError(f"Cannot write history file: {path}") from e
+            raise PersistenceError(paint(f"Cannot write history file: {path}", kind="error")) from e
 
     def load_history(self, path: str) -> None:
         try:
