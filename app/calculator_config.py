@@ -84,7 +84,12 @@ def load_config() -> CalculatorConfig:
     default_encoding = os.getenv("CALCULATOR_DEFAULT_ENCODING", "utf-8").strip() or "utf-8"
 
     # Ensure dirs exist on startup (spec wants configs validated/usable)
-    history_file.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+    except OSError:
+    # Do not fail at config-load time if the history path is invalid.
+    # Tests expect persistence errors to be handled during save/load.
+        pass
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
     except OSError as e:
