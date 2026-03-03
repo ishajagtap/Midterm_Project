@@ -125,7 +125,11 @@ def get_history_path() -> Path:
     Some unit tests expect this function.
     """
     cfg = load_config()
-    cfg.history_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        cfg.history_dir.mkdir(parents=True, exist_ok=True)
+    except OSError:
+    # Keep it non-fatal; persistence should fail on save/load, not config read.
+        pass
     return cfg.history_file
 
 

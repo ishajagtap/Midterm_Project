@@ -28,21 +28,24 @@ The calculator allows users to perform operations interactively through a REPL (
 
 The calculator supports the following operations:
 
-| Operation | Example |
-|--------|--------|
-| Addition | `add 2 3` |
-| Subtraction | `sub 5 1` |
-| Multiplication | `mul 4 6` |
-| Division | `div 10 2` |
-| Power | `pow 2 3` |
-| Root | `root 16 2` |
-| Modulus | `mod 10 3` |
+| Operation | Command Aliases | Example |
+|-----------|----------------|---------|
+| Addition | `add`, `+` | `add 2 3` |
+| Subtraction | `sub`, `subtract`, `-` | `sub 10 4` |
+| Multiplication | `mul`, `multiply`, `*` | `mul 3 5` |
+| Division | `div`, `divide`, `/` | `div 10 2` |
+| Power | `pow`, `power`, `**` | `pow 2 3` |
+| Root | `root` | `root 16 2` |
+| Modulus | `mod`, `modulus`, `%` | `mod 10 3` |
+| Integer Division | `int_divide`, `//` | `int_divide 7 2` |
+| Percentage | `percent`, `pct` | `percent 1 4` |
+| Absolute Difference | `abs_diff`, `absdiff` | `abs_diff 10 14` |
 
 ---
 
 # Project Structure
 
-
+```text
 app/
 │
 ├── calculator_repl.py # Command line REPL interface
