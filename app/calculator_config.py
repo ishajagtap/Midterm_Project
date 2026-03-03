@@ -88,3 +88,24 @@ def load_config() -> CalculatorConfig:
         default_encoding=default_encoding,
         log_file=log_file,
     )
+
+def get_history_path() -> Path:
+    """
+    Return the path to the history CSV and ensure the directory exists.
+    Some unit tests expect this function.
+    """
+    cfg = load_config()
+    cfg.history_dir.mkdir(parents=True, exist_ok=True)
+    return cfg.history_file
+
+
+def get_auto_save(val: object = None) -> bool:
+    """
+    Parse boolean variants for auto-save. Some unit tests call:
+    get_auto_save("true"), get_auto_save("1"), get_auto_save("yes"), etc.
+
+    If val is None, read CALCULATOR_AUTO_SAVE from environment.
+    """
+    if val is None:
+        val = os.getenv("CALCULATOR_AUTO_SAVE", "true")
+    return _bool_from_env(str(val))
