@@ -4,7 +4,7 @@ from typing import Dict
 from .operations import AbsDiff, Add, IntDivide, Modulus, Percent, Sub, Mul, Div, Pow, Root, Operation
 from .history import History
 from .calculator_memento import Caretaker
-from .exceptions import OperationError, InvalidInputError
+from .exceptions import OperationError, InvalidInputError,PersistenceError
 from .observers import Observer 
 from .operations import OperationFactory
 
@@ -75,14 +75,25 @@ class CalculatorFacade:
             self._restore_state(latest)
         return True
 
-    def save_history(self, path: str):
-        enc = self.config.default_encoding if self.config is not None else "utf-8"
-        self.history.to_csv(path, encoding=enc)
+    def save_history(self, path: str) -> None:
+        try:
+            self.history.to_csv(path, encoding=self.config.default_encoding if self.config else "utf-8")
+        except PersistenceError:
+            raise
+        except PermissionError as e:
+            raise PersistenceError(f"Cannot write history file (permission denied): {path}") from e
+        except OSError as e:
+            raise PersistenceError(f"Cannot write history file: {path}") from e
 
-    def load_history(self, path: str):
-        enc = self.config.default_encoding if self.config is not None else "utf-8"
-        self.history.load_csv(path, encoding=enc)
-        self._caretaker.save(self._capture_state())
+    def load_history(self, path: str) -> None:
+        try:
+            self.history.load_csv(path, encoding=self.config.default_encoding if self.config else "utf-8")
+        except PersistenceError:
+            raise
+        except PermissionError as e:
+            raise PersistenceError(f"Cannot read history file (permission denied): {path}") from e
+        except OSError as e:
+            raise PersistenceError(f"Cannot read history file: {path}") from e
 
     def get_history_df(self):
         return self.history.df.copy()
