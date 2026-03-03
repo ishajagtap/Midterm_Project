@@ -45,6 +45,8 @@ def load_config() -> CalculatorConfig:
     history_dir = Path(os.getenv("CALCULATOR_HISTORY_DIR", "data/history"))
     log_file_env = os.getenv("CALCULATOR_LOG_FILE", "").strip()
 
+    
+
     if log_file_env:
         log_file = Path(log_file_env)
     else:
@@ -74,9 +76,20 @@ def load_config() -> CalculatorConfig:
     default_encoding = os.getenv("CALCULATOR_DEFAULT_ENCODING", "utf-8").strip() or "utf-8"
 
     # Ensure dirs exist on startup (spec wants configs validated/usable)
-    log_dir.mkdir(parents=True, exist_ok=True)
-    history_dir.mkdir(parents=True, exist_ok=True)
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        raise ConfigError(f"Cannot create log directory: {log_dir}") from e
+
+    try:
+        history_dir.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        raise ConfigError(f"Cannot create history directory: {history_dir}") from e
+
+    try:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+    except OSError as e:
+        raise ConfigError(f"Cannot create log file directory: {log_file.parent}") from e
 
     return CalculatorConfig(
         log_dir=log_dir,
