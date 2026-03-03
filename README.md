@@ -1,104 +1,275 @@
-# Enhanced Calculator Project
+# Advanced Python Calculator (Midterm Project)
 
-This repository contains a simple modular calculator application written in Python.
-The codebase is designed to illustrate common design patterns such as:
+## Project Overview
 
-- **Facade** (`CalculatorFacade`)
-- **Command parsing / REPL**
-- **Memento pattern** (undo/redo functionality)
-- **History tracking** using `pandas`
-- Modular operations with an abstract `Operation` base class
+This project implements an advanced command-line calculator built in Python. The application supports multiple mathematical operations, maintains calculation history, and demonstrates professional software engineering practices including configuration management, logging, serialization with pandas, automated testing, and continuous integration.
 
-## Features
+The calculator allows users to perform operations interactively through a REPL (Read-Evaluate-Print Loop) interface and persist calculation history between sessions using CSV files.
 
-- Arithmetic operations: add, sub, mul, div, pow, root
-- Command-line REPL with history, undo/redo, save/load, and configuration
-- Input validation with clear errors
-- History persisted to CSV
-- Robust unit tests targeting 100% coverage (CI enforces ≥90%)
+---
 
-## Installation
+# Features
 
-```bash
-# clone and create venv
-git clone <repo-url>
-cd Module5_Calculator_Project
+- Command Line REPL Calculator
+- Multiple mathematical operations
+- Persistent calculation history
+- Undo and redo functionality
+- Configurable environment settings
+- Automatic logging
+- Serialization and deserialization using pandas
+- Robust error handling
+- Comprehensive unit testing with pytest
+- Code coverage enforcement (≥90%)
+- Continuous Integration using GitHub Actions
+
+---
+
+# Supported Operations
+
+The calculator supports the following operations:
+
+| Operation | Example |
+|--------|--------|
+| Addition | `add 2 3` |
+| Subtraction | `sub 5 1` |
+| Multiplication | `mul 4 6` |
+| Division | `div 10 2` |
+| Power | `pow 2 3` |
+| Root | `root 16 2` |
+| Modulus | `mod 10 3` |
+
+---
+
+# Project Structure
+
+
+app/
+│
+├── calculator_repl.py # Command line REPL interface
+├── calculation.py # CalculatorFacade and core logic
+├── operations.py # Mathematical operations
+├── history.py # Calculation history management
+├── calculator_config.py # Environment configuration loader
+├── calculator_memento.py # Undo / redo support
+├── observers.py # Observer pattern for logging/autosave
+├── input_validators.py # Input validation
+├── logger.py # Logging configuration
+├── exceptions.py # Custom exceptions
+└── models.py # Calculation data model
+
+tests/
+Unit tests using pytest
+
+.github/workflows/
+GitHub Actions CI workflow
+
+
+---
+
+# Installation
+
+### 1. Clone the repository
+
+
+git clone <your-repository-url>
+cd Midterm_Project
+
+
+### 2. Create virtual environment
+
+
 python -m venv .venv
-# Windows example
-.\.venv\Scripts\Activate.ps1
-# install the project in editable mode
-pip install -e .
+
+
+Activate the environment:
+
+Windows
+
+
+.venv\Scripts\activate
+
+
+Mac/Linux
+
+
+source .venv/bin/activate
+
+
+### 3. Install dependencies
+
+
 pip install -r requirements.txt
-```
 
-Alternatively, just install the requirements and run directly from source.
 
-## Usage
+---
 
-### Running the REPL
+# Environment Configuration
 
-```bash
+The application supports configuration using environment variables or a `.env` file.
+
+Example `.env` file:
+
+
+CALCULATOR_LOG_DIR=data/logs
+CALCULATOR_HISTORY_DIR=data/history
+CALCULATOR_HISTORY_FILE=data/history/history.csv
+CALCULATOR_AUTO_SAVE=true
+CALCULATOR_PRECISION=4
+CALCULATOR_MAX_HISTORY_SIZE=100
+CALCULATOR_MAX_INPUT_VALUE=1000000
+CALCULATOR_DEFAULT_ENCODING=utf-8
+
+
+---
+
+# Running the Calculator
+
+Start the REPL interface:
+
+
 python -m app.calculator_repl
-```
 
-Type `help` inside the REPL to see available commands, or run operations directly:
 
-```
-calc> add 2 3
-=> 5.0
-calc> history
-... history table ...
-calc> undo
-Undo: True
-```
+Example session:
 
-### As a library
 
-You can import and use the calculator programmatically:
+add 2 3
+Result: 5
 
-```python
-from app.calculation import CalculatorFacade
-calc = CalculatorFacade()
-result = calc.calculate('mul', 5, 7)
-print(result)  # 35.0
-```
+mul 4 6
+Result: 24
 
-## Configuration
+history
+timestamp operation a b result
 
-Environment variables (set via `.env` or OS):
+undo
+redo
+save
+exit
 
-- `HISTORY_CSV_PATH` – path to the history CSV (default `data/history.csv`)
-- `AUTO_SAVE` – boolean (`True`/`False`) whether to auto-save on exit
 
-The helpers live in `app/calculator_config.py`.
+---
 
-## Testing & Coverage
+# Calculation History Persistence
 
-Run the full test suite with coverage:
+Calculation history is stored using **pandas** and serialized to a CSV file.
 
-```bash
+Saved columns include:
+
+- timestamp
+- operation
+- operand a
+- operand b
+- result
+
+History can be saved and loaded using commands:
+
+
+save
+load
+
+
+The CSV file location is configured using:
+
+
+CALCULATOR_HISTORY_FILE
+
+
+---
+
+# Logging
+
+The calculator uses Python's logging system to track operations and errors.
+
+Logs are written to the directory specified by:
+
+
+CALCULATOR_LOG_DIR
+
+
+Default location:
+
+
+data/logs/calculator.log
+
+
+---
+
+# Running Tests
+
+The project includes extensive unit tests using **pytest**.
+
+Run tests:
+
+
+pytest
+
+
+---
+
+# Code Coverage
+
+To run tests with coverage:
+
+
 pytest --cov=app --cov-report=term-missing
-```
-
-The GitHub Actions workflow will fail if coverage drops below 90%.
 
 
-## Project Structure
+The project enforces **minimum 90% coverage**.
 
-```
-app/                # application modules
- tests/              # unit and integration tests
- data/               # default history file location
- main.py             # optional entrypoint (if present)
- pytest.ini          # pytest configuration
- requirements.txt    # dependency list
- README.md           # this file
-``` 
+---
 
-## Contributing
+# Continuous Integration (CI)
 
-Contributions are welcome!  Please fork the repo and open a pull request with tests for any new behavior.
+The project uses **GitHub Actions** to automatically run tests and enforce coverage requirements.
 
-## License
+The CI pipeline performs the following steps:
 
-This project is provided for educational purposes.  (Add license details here if applicable.)
+1. Checkout repository
+2. Setup Python environment
+3. Install dependencies
+4. Run pytest with coverage
+5. Fail build if coverage drops below 90%
+
+Workflow file:
+
+
+.github/workflows/python-app.yml
+
+
+---
+
+# Error Handling
+
+Custom exceptions are used throughout the application:
+
+- `OperationError`
+- `InvalidInputError`
+- `ValidationError`
+- `PersistenceError`
+- `ConfigError`
+
+This ensures clear and consistent error reporting.
+
+---
+
+# Development Practices
+
+This project demonstrates several software engineering best practices:
+
+- Modular architecture
+- Clean separation of concerns
+- Unit testing
+- Configuration management
+- Logging
+- Serialization and persistence
+- Continuous integration
+- Code coverage enforcement
+
+---
+
+# Author
+
+Isha Jagtap
+Master's in Computer Science  
+NJIT

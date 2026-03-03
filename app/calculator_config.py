@@ -31,18 +31,20 @@ class CalculatorConfig:
     max_input_value: float
     default_encoding: str
     log_file: Path 
+    history_file: Path
 
     # @property
     # def log_file(self) -> Path:
     #     return self.log_dir / "calculator.log"
 
-    @property
-    def history_file(self) -> Path:
-        return self.history_dir / "history.csv"
+    # @property
+    # def history_file(self) -> Path:
+    #     return self.history_dir / "history.csv"
 
 def load_config() -> CalculatorConfig:
     log_dir = Path(os.getenv("CALCULATOR_LOG_DIR", "data/logs"))
     history_dir = Path(os.getenv("CALCULATOR_HISTORY_DIR", "data/history"))
+    history_file_env = os.getenv("CALCULATOR_HISTORY_FILE", "").strip()
     log_file_env = os.getenv("CALCULATOR_LOG_FILE", "").strip()
 
     
@@ -51,6 +53,11 @@ def load_config() -> CalculatorConfig:
         log_file = Path(log_file_env)
     else:
         log_file = log_dir / "calculator.log"
+
+    if history_file_env:
+        history_file = Path(history_file_env)
+    else:
+        history_file = history_dir / "history.csv"
 
     max_history_size = _int_from_env(
         "CALCULATOR_MAX_HISTORY_SIZE",
@@ -67,6 +74,7 @@ def load_config() -> CalculatorConfig:
         raise ConfigError("CALCULATOR_PRECISION must be between 0 and 15.")
 
     try:
+        
         max_input_value = float(os.getenv("CALCULATOR_MAX_INPUT_VALUE", "1000000"))
     except Exception as e:
         raise ConfigError("CALCULATOR_MAX_INPUT_VALUE must be a number.") from e
@@ -76,6 +84,7 @@ def load_config() -> CalculatorConfig:
     default_encoding = os.getenv("CALCULATOR_DEFAULT_ENCODING", "utf-8").strip() or "utf-8"
 
     # Ensure dirs exist on startup (spec wants configs validated/usable)
+    history_file.parent.mkdir(parents=True, exist_ok=True)
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
     except OSError as e:
@@ -102,6 +111,7 @@ def load_config() -> CalculatorConfig:
         max_input_value=max_input_value,
         default_encoding=default_encoding,
         log_file=log_file,
+        history_file=history_file,
     )
 
 def get_history_path() -> Path:
