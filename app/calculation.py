@@ -96,3 +96,10 @@ class CalculatorFacade:
 
     def get_history_df(self):
         return self.history.df.copy()
+    
+    def clear_history(self) -> None:
+        from .history import History
+        self.history = History()
+        self._last_result = None
+        #  reset caretaker stacks to match cleared state
+        self._caretaker.reset(self._capture_state())

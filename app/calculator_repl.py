@@ -59,8 +59,7 @@ def process_command(calc: CalculatorFacade, line: str, history_path: str, auto_s
             printed = f"Loaded history from {history_path}"
             return {"printed": printed, "exit": False}
         if cmd == "clear":
-            from .history import History
-            calc.history = History()
+            calc.clear_history()
             printed = "Cleared history."
             return {"printed": printed, "exit": False}
         if cmd == "undo":
