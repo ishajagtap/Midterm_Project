@@ -21,6 +21,9 @@ class LoggingObserver(Observer):
             "op=%s a=%s b=%s result=%s",
             operation, a, b, result
         )
+        # Flush handlers to ensure logs are written to disk immediately
+        for handler in self._logger.handlers:
+            handler.flush()
 
 class AutoSaveObserver(Observer):
     def __init__(self, history_path: str, enabled: bool = True):

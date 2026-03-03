@@ -30,10 +30,11 @@ class CalculatorConfig:
     precision: int
     max_input_value: float
     default_encoding: str
+    log_file: Path 
 
-    @property
-    def log_file(self) -> Path:
-        return self.log_dir / "calculator.log"
+    # @property
+    # def log_file(self) -> Path:
+    #     return self.log_dir / "calculator.log"
 
     @property
     def history_file(self) -> Path:
@@ -42,6 +43,12 @@ class CalculatorConfig:
 def load_config() -> CalculatorConfig:
     log_dir = Path(os.getenv("CALCULATOR_LOG_DIR", "data/logs"))
     history_dir = Path(os.getenv("CALCULATOR_HISTORY_DIR", "data/history"))
+    log_file_env = os.getenv("CALCULATOR_LOG_FILE", "").strip()
+
+    if log_file_env:
+        log_file = Path(log_file_env)
+    else:
+        log_file = log_dir / "calculator.log"
 
     max_history_size = _int_from_env(
         "CALCULATOR_MAX_HISTORY_SIZE",
@@ -69,6 +76,7 @@ def load_config() -> CalculatorConfig:
     # Ensure dirs exist on startup (spec wants configs validated/usable)
     log_dir.mkdir(parents=True, exist_ok=True)
     history_dir.mkdir(parents=True, exist_ok=True)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
 
     return CalculatorConfig(
         log_dir=log_dir,
@@ -78,4 +86,5 @@ def load_config() -> CalculatorConfig:
         precision=precision,
         max_input_value=max_input_value,
         default_encoding=default_encoding,
+        log_file=log_file,
     )

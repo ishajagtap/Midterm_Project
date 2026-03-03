@@ -18,6 +18,8 @@ def build_logger(log_path: str) -> logging.Logger:
     fh = logging.FileHandler(log_path, encoding="utf-8")
     fmt = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
     fh.setFormatter(fmt)
+    # Flush after each log message to ensure data is written immediately
+    fh.flush()
 
     logger.addHandler(fh)
     return logger

@@ -4,35 +4,10 @@ from typing import Dict
 from .operations import AbsDiff, Add, IntDivide, Modulus, Percent, Sub, Mul, Div, Pow, Root, Operation
 from .history import History
 from .calculator_memento import Caretaker
-from .exceptions import InvalidInputError
+from .exceptions import OperationError, InvalidInputError
 from .observers import Observer 
+from .operations import OperationFactory
 
-OP_MAP = {
-    "add": Add,
-    "+": Add,
-    "sub": Sub,
-    "-": Sub,
-    "mul": Mul,
-    "*": Mul,
-    "div": Div,
-    "/": Div,
-    "pow": Pow,
-    "^": Pow,
-    "root": Root,
-    "modulus": Modulus,
-    "mod": Modulus,
-    "%": Modulus,
-
-    "int_divide": IntDivide,
-    "intdiv": IntDivide,
-    "//": IntDivide,
-
-    "percent": Percent,
-    "pct": Percent,
-
-    "abs_diff": AbsDiff,
-    "absdiff": AbsDiff,
-}
 
 class CalculatorFacade:
     def __init__(self, history: History = None,config=None):
@@ -63,11 +38,15 @@ class CalculatorFacade:
             self.history.df = pd.DataFrame(columns=COLUMNS)  # pragma: no cover
 
     def calculate(self, op_name: str, a: float, b: float) -> float:
-        op_class = OP_MAP.get(op_name)
-        if op_class is None:
+        try:
+            operation: Operation = OperationFactory.create(op_name)
+        except Exception:
             raise InvalidInputError(f"Unknown operation: {op_name}")
-        op: Operation = op_class()
-        result = op.execute(a, b)
+
+        try:
+            result = operation.execute(a, b)
+        except OperationError as e:
+            raise InvalidInputError(str(e))
 
         if self.config is not None and getattr(self.config, "precision", None) is not None:
             result = round(result, int(self.config.precision))

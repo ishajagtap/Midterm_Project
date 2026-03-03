@@ -1,4 +1,5 @@
 # app/input_validators.py
+import math
 from typing import Tuple, Optional
 from .exceptions import InvalidInputError, ValidationError
 
@@ -28,6 +29,9 @@ def parse_command(calc,line: str) ->  Tuple[str, Optional[float], Optional[float
             m = calc.config.max_input_value
             if abs(a) > m or abs(b) > m:
                 raise ValidationError(f"Inputs must be within ±{m}.")
+        if math.isnan(a) or math.isnan(b) or math.isinf(a) or math.isinf(b):
+            raise ValidationError("Inputs must be real finite numbers (not NaN/Infinity).")
+            
     except ValueError:
         raise InvalidInputError("Operands must be numbers.")
     return cmd, a, b

@@ -3,3 +3,7 @@
 2026-03-02 23:30:40,264 | INFO | op=add a=4.0 b=6.0 result=10.0
 2026-03-02 23:30:43,887 | INFO | op=add a=8.0 b=9.0 result=17.0
 2026-03-02 23:33:00,091 | INFO | op=div a=10.0 b=3.0 result=3.3333
+2026-03-03 14:37:16,315 | INFO | op=abs_diff a=12.0 b=9.0 result=3.0
+2026-03-03 15:07:59,555 | INFO | op=add a=0.0 b=5.0 result=5.0
+2026-03-03 15:11:03,988 | INFO | op=add a=9.0 b=6.0 result=15.0
+2026-03-03 15:11:07,632 | INFO | op=add a=4.0 b=9.0 result=13.0

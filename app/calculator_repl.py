@@ -2,8 +2,7 @@
 from .input_validators import parse_command
 from .calculation import CalculatorFacade
 from .calculator_config import  load_config
-from .exceptions import InvalidInputError, DivisionByZeroError, CalculationError
-# from .calculator_config import get_history_path, get_auto_save, get_log_path  # add get_log_path
+from .exceptions import InvalidInputError, DivisionByZeroError, CalculationError, PersistenceError
 from .logger import build_logger
 from .observers import LoggingObserver, AutoSaveObserver
 
@@ -82,12 +81,18 @@ def process_command(calc: CalculatorFacade, line: str, cfg):
 
     except InvalidInputError as e:
         return {"printed": f"Input error: {e}", "exit": False}
+
     except DivisionByZeroError as e:
         return {"printed": f"Math error: {e}", "exit": False}
+
+    except PersistenceError as e:
+        return {"printed": f"File error: {e}", "exit": False}
+
     except CalculationError as e:
         return {"printed": f"Calculation error: {e}", "exit": False}
+
     except Exception as e:
-        return {"printed": f"Unexpected error: {e}", "exit": False}
+        return {"printed": f"Unexpected error: {e}", "exit": False}  # pragma: no cover
     
 
 def repl():
@@ -107,10 +112,18 @@ def repl():
             res = process_command(calc, line, cfg)
             print(res["printed"])
             if res["exit"]:
+                # Flush and close logger handlers on exit
+                for handler in logger.handlers:
+                    handler.flush()
+                    handler.close()
                 sys.exit(0)
         except EOFError:
             if cfg.auto_save:
                 calc.save_history(str(cfg.history_file))
+            # Flush and close logger handlers on EOF
+            for handler in logger.handlers:
+                handler.flush()
+                handler.close()
             print("Goodbye.")
             sys.exit(0)
         except SystemExit:

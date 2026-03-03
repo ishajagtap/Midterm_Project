@@ -14,3 +14,8 @@ class ConfigError(Exception):
 class ValidationError(Exception):
     """Raised when user input fails validation (range, type, etc.)."""
     pass
+class OperationError(CalculationError):
+    """Raised when an operation cannot be performed (domain errors, unsupported, etc.)."""
+
+class PersistenceError(CalculationError):
+    """Raised for history save/load (CSV) errors."""

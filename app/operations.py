@@ -1,7 +1,7 @@
 ﻿# app/operations.py
 from abc import ABC, abstractmethod
 import math
-from .exceptions import DivisionByZeroError
+from .exceptions import DivisionByZeroError ,OperationError
 
 class Operation(ABC):
     @abstractmethod
@@ -34,7 +34,7 @@ class Pow(Operation):
 class Root(Operation):
     def execute(self, a, b):
         if b == 0:
-            raise ValueError("Root degree cannot be zero.")
+            raise OperationError("Root degree cannot be zero.")
         try:
             ib = int(b)
         except Exception:
@@ -42,7 +42,7 @@ class Root(Operation):
         if a < 0:
             if ib is not None and ib % 2 == 1:
                 return - (abs(a) ** (1.0 / b))
-            raise ValueError("Even root of negative number is invalid.")
+            raise OperationError("Even root of a negative number is invalid.")
         return a ** (1.0 / b)
 
 class Modulus(Operation):
@@ -67,3 +67,38 @@ class Percent(Operation):
 class AbsDiff(Operation):
     def execute(self, a, b):
         return abs(a - b)
+
+class OperationFactory:
+    """Factory class to create operation instances."""
+
+    _operations = {
+        "add": Add,
+        "+": Add,
+        "sub": Sub,
+        "-": Sub,
+        "mul": Mul,
+        "*": Mul,
+        "div": Div,
+        "/": Div,
+        "pow": Pow,
+        "^": Pow,
+        "root": Root,
+        "modulus": Modulus,
+        "mod": Modulus,
+        "%": Modulus,
+        "int_divide": IntDivide,
+        "intdiv": IntDivide,
+        "//": IntDivide,
+        "percent": Percent,
+        "pct": Percent,
+        "abs_diff": AbsDiff,
+        "absdiff": AbsDiff,
+    }
+
+    @classmethod
+    def create(cls, op_name: str) -> Operation:
+        op_name = op_name.lower()
+        if op_name not in cls._operations:
+            from .exceptions import OperationError
+            raise OperationError(f"Unsupported operation: {op_name}")
+        return cls._operations[op_name]()
