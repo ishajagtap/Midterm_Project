@@ -1,9 +1,9 @@
 ﻿import sys
 from .input_validators import parse_command
 from .calculation import CalculatorFacade
-from .calculator_config import get_history_path, get_auto_save
+from .calculator_config import  load_config
 from .exceptions import InvalidInputError, DivisionByZeroError, CalculationError
-from .calculator_config import get_history_path, get_auto_save, get_log_path  # add get_log_path
+# from .calculator_config import get_history_path, get_auto_save, get_log_path  # add get_log_path
 from .logger import build_logger
 from .observers import LoggingObserver, AutoSaveObserver
 
@@ -32,95 +32,127 @@ Commands:
   exit               -> quit
 """
 
-def process_command(calc: CalculatorFacade, line: str, history_path: str, auto_save: bool):
-    printed = ""
-    exit_now = False
+def process_command(calc: CalculatorFacade, line: str, cfg):
+    """
+    Process one REPL command line using configuration from cfg.
+    cfg must have:
+      - cfg.auto_save (bool)
+      - cfg.history_file (Path)
+    """
     try:
-        cmd, a, b = parse_command(line)
+        cmd, a, b = parse_command(calc, line)
+
         if cmd == "help":
-            printed = WELCOME
-            return {"printed": printed, "exit": False}
+            return {"printed": WELCOME, "exit": False}
+
         if cmd == "exit":
-            if auto_save:
-                calc.save_history(history_path)
-            exit_now = True
-            printed = "Goodbye."
-            return {"printed": printed, "exit": True}
+            if cfg.auto_save:
+                calc.save_history(str(cfg.history_file))
+            return {"printed": "Goodbye.", "exit": True}
+
         if cmd == "history":
             df = calc.get_history_df()
             if df.empty:
-                printed = "No history."
-            else:
-                printed = df.to_string(index=False)
-            return {"printed": printed, "exit": False}
+                return {"printed": "No history.", "exit": False}
+            return {"printed": df.to_string(index=False), "exit": False}
+
         if cmd == "save":
-            calc.save_history(history_path)
-            printed = f"Saved history to {history_path}"
-            return {"printed": printed, "exit": False}
+            calc.save_history(str(cfg.history_file))
+            return {"printed": f"Saved history to {cfg.history_file}", "exit": False}
+
         if cmd == "load":
-            calc.load_history(history_path)
-            printed = f"Loaded history from {history_path}"
-            return {"printed": printed, "exit": False}
+            calc.load_history(str(cfg.history_file))
+            return {"printed": f"Loaded history from {cfg.history_file}", "exit": False}
+
         if cmd == "clear":
             calc.clear_history()
-            printed = "Cleared history."
-            return {"printed": printed, "exit": False}
+            return {"printed": "Cleared history.", "exit": False}
+
         if cmd == "undo":
             ok = calc.undo()
-            printed = f"Undo: {ok}"
-            return {"printed": printed, "exit": False}
+            return {"printed": f"Undo: {ok}", "exit": False}
+
         if cmd == "redo":
             ok = calc.redo()
-            printed = f"Redo: {ok}"
-            return {"printed": printed, "exit": False}
+            return {"printed": f"Redo: {ok}", "exit": False}
 
+        # Otherwise it's an operation
         result = calc.calculate(cmd, a, b)
-        printed = f"=> {result}"
-        return {"printed": printed, "exit": False}
+        return {"printed": f"=> {result}", "exit": False}
 
     except InvalidInputError as e:
-        printed = f"Input error: {e}"
-        return {"printed": printed, "exit": False}
+        return {"printed": f"Input error: {e}", "exit": False}
     except DivisionByZeroError as e:
-        printed = f"Math error: {e}"
-        return {"printed": printed, "exit": False}
+        return {"printed": f"Math error: {e}", "exit": False}
     except CalculationError as e:
-        printed = f"Calculation error: {e}"
-        return {"printed": printed, "exit": False}
+        return {"printed": f"Calculation error: {e}", "exit": False}
     except Exception as e:
-        printed = f"Unexpected error: {e}"
-        return {"printed": printed, "exit": False}
+        return {"printed": f"Unexpected error: {e}", "exit": False}
+    
 
 def repl():
-    calc = CalculatorFacade()
-    history_path = get_history_path()
-    auto_save = get_auto_save()
-    logger = build_logger(get_log_path())
+    cfg = load_config()
+    calc = CalculatorFacade(config=cfg)
 
+    logger = build_logger(str(cfg.log_file))
     calc.register_observer(LoggingObserver(logger))
-    calc.register_observer(
-        AutoSaveObserver(history_path=history_path, enabled=auto_save))
+    calc.register_observer(AutoSaveObserver(history_path=str(cfg.history_file), enabled=cfg.auto_save))
+
     print(WELCOME)
     while True:
         try:
             line = input("calc> ").strip()
             if not line:
                 continue
-            res = process_command(calc, line, history_path, auto_save)
+            res = process_command(calc, line, cfg)
             print(res["printed"])
             if res["exit"]:
                 sys.exit(0)
         except EOFError:
-            if auto_save:
-                calc.save_history(history_path)
+            if cfg.auto_save:
+                calc.save_history(str(cfg.history_file))
             print("Goodbye.")
             sys.exit(0)
         except SystemExit:
             raise
         except Exception as e:
-            # This is an REPL-level unexpected error path that is difficult to exercise reliably in tests.
-            # Mark it as intentionally excluded from coverage measurement.
             print("REPL-level unexpected error:", e)  # pragma: no cover
+
+# def repl():
+
+#     cfg = load_config()
+#     calc = CalculatorFacade(config=cfg)
+#     # history_path = get_history_path()
+#     # auto_save = get_auto_save()
+#     logger = build_logger(str(cfg.log_file))
+    
+    
+
+
+#     calc.register_observer(LoggingObserver(logger))
+#     calc.register_observer(
+#         AutoSaveObserver(history_path=str(cfg.history_file), enabled=cfg.auto_save))
+#     print(WELCOME)
+#     while True:
+#         try:
+#             line = input("calc> ").strip()
+#             if not line:
+#                 continue
+#             res = process_command(calc, line, history_path, auto_save)
+#             print(res["printed"])
+#             if res["exit"]:
+#                 sys.exit(0)
+#         except EOFError:
+#             if auto_save:
+#                 calc.save_history(history_path)
+#             print("Goodbye.")
+#             sys.exit(0)
+#         except SystemExit:
+#             raise
+#         except Exception as e:
+#             # This is an REPL-level unexpected error path that is difficult to exercise reliably in tests.
+#             # Mark it as intentionally excluded from coverage measurement.
+#             print("REPL-level unexpected error:", e)  # pragma: no cover
 
 if __name__ == "__main__":
     repl()  # pragma: no cover

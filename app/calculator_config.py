@@ -1,36 +1,81 @@
 # app/calculator_config.py
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from dotenv import load_dotenv
 from .exceptions import ConfigError
 
 load_dotenv()
 
-def get_env(key: str, default=None):
-    val = os.getenv(key, default)
-    return val
+def _bool_from_env(val: str) -> bool:
+    v = val.strip().lower()
+    if v in {"true", "1", "yes", "y"}:
+        return True
+    if v in {"false", "0", "no", "n"}:
+        return False
+    raise ConfigError("CALCULATOR_AUTO_SAVE must be true/false (or 1/0).")
 
-def get_history_path() -> str:
-    path = get_env("HISTORY_CSV_PATH", "data/history.csv")
-    p = Path(path)
-    if not p.parent.exists():
-        # do not create; caller may want to validate, but ensure folder exists
-        p.parent.mkdir(parents=True, exist_ok=True)
-    return str(path)
+def _int_from_env(key: str, val: str) -> int:
+    try:
+        return int(val)
+    except Exception as e:
+        raise ConfigError(f"{key} must be an integer.") from e
 
-def get_auto_save() -> bool:
-    val = get_env("AUTO_SAVE", "True")
-    if isinstance(val, str):
-        val_low = val.lower()
-        if val_low in {"true", "1", "yes"}:
-            return True
-        if val_low in {"false", "0", "no"}:
-            return False
-    raise ConfigError("AUTO_SAVE must be a boolean-like value.")
+@dataclass(frozen=True)
+class CalculatorConfig:
+    log_dir: Path
+    history_dir: Path
+    max_history_size: int
+    auto_save: bool
+    precision: int
+    max_input_value: float
+    default_encoding: str
 
-def get_log_path() -> str:
-    # You can later rename to CALCULATOR_LOG_DIR/CALCULATOR_LOG_FILE to match spec
-    path = get_env("CALCULATOR_LOG_FILE", "data/calculator.log")
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    return str(path)
+    @property
+    def log_file(self) -> Path:
+        return self.log_dir / "calculator.log"
+
+    @property
+    def history_file(self) -> Path:
+        return self.history_dir / "history.csv"
+
+def load_config() -> CalculatorConfig:
+    log_dir = Path(os.getenv("CALCULATOR_LOG_DIR", "data/logs"))
+    history_dir = Path(os.getenv("CALCULATOR_HISTORY_DIR", "data/history"))
+
+    max_history_size = _int_from_env(
+        "CALCULATOR_MAX_HISTORY_SIZE",
+        os.getenv("CALCULATOR_MAX_HISTORY_SIZE", "100"),
+    )
+
+    auto_save = _bool_from_env(os.getenv("CALCULATOR_AUTO_SAVE", "true"))
+
+    precision = _int_from_env(
+        "CALCULATOR_PRECISION",
+        os.getenv("CALCULATOR_PRECISION", "4"),
+    )
+    if precision < 0 or precision > 15:
+        raise ConfigError("CALCULATOR_PRECISION must be between 0 and 15.")
+
+    try:
+        max_input_value = float(os.getenv("CALCULATOR_MAX_INPUT_VALUE", "1000000"))
+    except Exception as e:
+        raise ConfigError("CALCULATOR_MAX_INPUT_VALUE must be a number.") from e
+    if max_input_value <= 0:
+        raise ConfigError("CALCULATOR_MAX_INPUT_VALUE must be > 0.")
+
+    default_encoding = os.getenv("CALCULATOR_DEFAULT_ENCODING", "utf-8").strip() or "utf-8"
+
+    # Ensure dirs exist on startup (spec wants configs validated/usable)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    history_dir.mkdir(parents=True, exist_ok=True)
+
+    return CalculatorConfig(
+        log_dir=log_dir,
+        history_dir=history_dir,
+        max_history_size=max_history_size,
+        auto_save=auto_save,
+        precision=precision,
+        max_input_value=max_input_value,
+        default_encoding=default_encoding,
+    )

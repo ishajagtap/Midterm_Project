@@ -10,3 +10,7 @@ class InvalidInputError(CalculationError):
 
 class ConfigError(Exception):
     """Configuration error."""
+
+class ValidationError(Exception):
+    """Raised when user input fails validation (range, type, etc.)."""
+    pass

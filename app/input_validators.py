@@ -1,8 +1,8 @@
 # app/input_validators.py
 from typing import Tuple, Optional
-from .exceptions import InvalidInputError
+from .exceptions import InvalidInputError, ValidationError
 
-def parse_command(line: str) -> Tuple[str, Optional[float], Optional[float]]:
+def parse_command(calc,line: str) ->  Tuple[str, Optional[float], Optional[float]]:
     """
     Accepts strings like:
       add 2 3
@@ -23,6 +23,11 @@ def parse_command(line: str) -> Tuple[str, Optional[float], Optional[float]]:
     try:
         a = float(parts[1])
         b = float(parts[2])
+
+        if calc.config is not None:
+            m = calc.config.max_input_value
+            if abs(a) > m or abs(b) > m:
+                raise ValidationError(f"Inputs must be within ±{m}.")
     except ValueError:
         raise InvalidInputError("Operands must be numbers.")
     return cmd, a, b

@@ -1,4 +1,5 @@
 ﻿# app/calculation.py
+from os import path
 from typing import Dict
 from .operations import AbsDiff, Add, IntDivide, Modulus, Percent, Sub, Mul, Div, Pow, Root, Operation
 from .history import History
@@ -34,7 +35,8 @@ OP_MAP = {
 }
 
 class CalculatorFacade:
-    def __init__(self, history: History = None):
+    def __init__(self, history: History = None,config=None):
+        self.config = config  # store config
         self.history = history if history is not None else History()
         self._caretaker = Caretaker()
         self._last_result = None
@@ -66,8 +68,12 @@ class CalculatorFacade:
             raise InvalidInputError(f"Unknown operation: {op_name}")
         op: Operation = op_class()
         result = op.execute(a, b)
+
+        if self.config is not None and getattr(self.config, "precision", None) is not None:
+            result = round(result, int(self.config.precision))
         self._last_result = result
-        self.history.append(op_name, a, b, result)
+        max_size = self.config.max_history_size if self.config is not None else None
+        self.history.append(op_name, a, b, result, max_size=max_size)
         self._caretaker.save(self._capture_state())
         self._notify_observers(operation=op_name, a=a, b=b, result=result)
         return result
@@ -91,10 +97,12 @@ class CalculatorFacade:
         return True
 
     def save_history(self, path: str):
-        self.history.to_csv(path)
+        enc = self.config.default_encoding if self.config is not None else "utf-8"
+        self.history.to_csv(path, encoding=enc)
 
     def load_history(self, path: str):
-        self.history.load_csv(path)
+        enc = self.config.default_encoding if self.config is not None else "utf-8"
+        self.history.load_csv(path, encoding=enc)
         self._caretaker.save(self._capture_state())
 
     def get_history_df(self):
