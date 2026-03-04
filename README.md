@@ -45,23 +45,24 @@ The calculator supports the following operations:
 
 # Project Structure
 ```text
-
 app/
-│
-├── calculator_repl.py # Command line REPL interface
-├── calculation.py # CalculatorFacade and core logic
-├── operations.py # Mathematical operations
-├── history.py # Calculation history management
-├── calculator_config.py # Environment configuration loader
-├── calculator_memento.py # Undo / redo support
-├── observers.py # Observer pattern for logging/autosave
-├── input_validators.py # Input validation
-├── logger.py # Logging configuration
-├── exceptions.py # Custom exceptions
-└── models.py # Calculation data model
-```
+calculation.py
+calculator_config.py
+calculator_memento.py
+calculator_repl.py
+colors.py
+exceptions.py
+history.py
+input_validators.py
+logger.py
+observers.py
+operations.py
 tests/
 Unit tests using pytest
+
+```
+
+
 
 .github/workflows/
 GitHub Actions CI workflow
