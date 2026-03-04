@@ -9,6 +9,7 @@ from .calculator_memento import Caretaker
 from .exceptions import OperationError, InvalidInputError,PersistenceError
 from .observers import Observer 
 from .operations import OperationFactory
+from pandas.errors import ParserError
 
 
 class CalculatorFacade:
@@ -79,23 +80,53 @@ class CalculatorFacade:
 
     def save_history(self, path: str) -> None:
         try:
-            self.history.to_csv(path, encoding=self.config.default_encoding if self.config else "utf-8")
+            self.history.to_csv(
+                path,
+                encoding=self.config.default_encoding if self.config else "utf-8"
+            )
+
         except PersistenceError:
             raise
+
         except PermissionError as e:
-            raise PersistenceError(paint(f"Cannot write history file (permission denied): {path}", kind="error")) from e
+            raise PersistenceError(
+                paint(f"Cannot write history file (permission denied): {path}", kind="error")
+            ) from e
+
         except OSError as e:
-            raise PersistenceError(paint(f"Cannot write history file: {path}", kind="error")) from e
+            raise PersistenceError(
+                paint(f"Cannot write history file: {path}", kind="error")
+            ) from e
+
+        # catches pandas serialization/data errors
+        except Exception as e:
+            raise PersistenceError(
+                paint(f"Failed to save history (data error): {path}", kind="error")
+            ) from e
 
     def load_history(self, path: str) -> None:
         try:
-            self.history.load_csv(path, encoding=self.config.default_encoding if self.config else "utf-8")
+            self.history.load_csv(
+                path,
+                encoding=self.config.default_encoding if self.config else "utf-8",
+            )
+
         except PersistenceError:
             raise
-        except PermissionError as e:
-            raise PersistenceError(f"Cannot read history file (permission denied): {path}") from e
-        except OSError as e:
-            raise PersistenceError(f"Cannot read history file: {path}") from e
+
+        # ✅ add these two blocks
+        except UnicodeDecodeError as e:
+            raise PersistenceError(
+                f"Cannot read history file (encoding error). Check CALCULATOR_DEFAULT_ENCODING: {path}"
+            ) from e
+
+        except Exception as e:
+            # catches pandas ParserError, ValueError, etc. -> malformed CSV
+            raise PersistenceError(
+                f"History file is malformed or corrupted: {path}"
+            ) from e
+        except ParserError as e:
+            raise PersistenceError(f"History file is malformed or corrupted: {path}") from e
 
     def get_history_df(self):
         return self.history.df.copy()
