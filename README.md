@@ -44,8 +44,8 @@ The calculator supports the following operations:
 ---
 
 # Project Structure
-
 ```text
+
 app/
 │
 ├── calculator_repl.py # Command line REPL interface
@@ -59,7 +59,7 @@ app/
 ├── logger.py # Logging configuration
 ├── exceptions.py # Custom exceptions
 └── models.py # Calculation data model
-
+```
 tests/
 Unit tests using pytest
 
@@ -273,6 +273,6 @@ This project demonstrates several software engineering best practices:
 
 # Author
 
-Isha Jagtap
+Isha Jagtap \
 Master's in Computer Science  
 NJIT
