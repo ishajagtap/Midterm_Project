@@ -21,6 +21,9 @@ The calculator allows users to perform operations interactively through a REPL (
 - Comprehensive unit testing with pytest
 - Code coverage enforcement (≥90%)
 - Continuous Integration using GitHub Actions
+- Advanced Design Patterns (Command, Decorator, Observer, Memento, Facade, Factory)
+- Color-coded terminal outputs for improved UX
+- Dynamic auto-generated help menu
 
 ---
 
@@ -51,6 +54,7 @@ calculator_config.py
 calculator_memento.py
 calculator_repl.py
 colors.py
+commands.py
 exceptions.py
 history.py
 input_validators.py
@@ -269,6 +273,7 @@ This project demonstrates several software engineering best practices:
 - Serialization and persistence
 - Continuous integration
 - Code coverage enforcement
+- Design Patterns Application (Command, Decorator, Observer, Memento, Facade, Factory)
 
 ---
 
