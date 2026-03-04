@@ -3,6 +3,7 @@ import runpy
 import builtins
 import pytest
 from pathlib import Path
+import sys
 
 def test_run_module_main(monkeypatch, tmp_path):
     """
@@ -28,6 +29,8 @@ def test_run_module_main(monkeypatch, tmp_path):
     monkeypatch.setattr(builtins, "input", lambda prompt="": next(seq))
 
     # Running as __main__ will call repl(); it will sys.exit on "exit" -> catch SystemExit
+    # Ensure a prior import of app.calculator_repl doesn't trigger a RuntimeWarning
+    sys.modules.pop("app.calculator_repl", None)
     with pytest.raises(SystemExit):
         runpy.run_module("app.calculator_repl", run_name="__main__")
 
