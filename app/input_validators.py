@@ -2,6 +2,7 @@
 import math
 from typing import Tuple, Optional
 from .exceptions import InvalidInputError, ValidationError
+from .calculator_config import load_config
 
 
 def parse_command(line: str) -> Tuple[str, Optional[float], Optional[float]]:
@@ -37,5 +38,10 @@ def parse_command(line: str) -> Tuple[str, Optional[float], Optional[float]]:
 
     if math.isnan(a) or math.isnan(b) or math.isinf(a) or math.isinf(b):
         raise ValidationError("Inputs must be real finite numbers (not NaN/Infinity).")
+        
+    cfg = load_config()
+    lim = cfg.max_input_value
+    if abs(a) > lim or abs(b) > lim:
+        raise ValidationError(f"Inputs must be within ±{lim}.")
 
     return cmd, a, b
